@@ -8,15 +8,23 @@ RUN apk add -U --no-cache ca-certificates \
         openssl \
         tar \
     &&  wget https://github.com/coreos/etcd/releases/download/${ETCD_VSERSION}/etcd-${ETCD_VSERSION}-linux-amd64.tar.gz \
-    && tar xzvf etcd-${ETCD_VSERSION}-linux-amd64.tar.gz\
-    && mv etcd-${ETCD_VSERSION}-linux-amd64/etcd* /bin/  \
+    && tar xzvf etcd-${ETCD_VSERSION}-linux-amd64.tar.gz \
+    && mv etcd-${ETCD_VSERSION}-linux-amd64/etcd* /bin/ \
     && apk del --purge tar openssl  \
     && rm -Rf etcd-${ETCD_VSERSION}-linux-amd64* \
     && rm -rf /var/cache/apk/* 
 
 ADD rootfs /
-ADD entrypoint.sh /bin/entrypoint.sh
-RUN chmod +x /bin/entrypoint.sh
 
-EXPOSE      2379 2380 4001 7001
-ENTRYPOINT  ["/bin/entrypoint.sh"]
+
+ENV BITNAMI_APP_NAME="etcd" \
+    BITNAMI_IMAGE_VERSION="3.3.13-debian-9-r1" \
+    ETCD_ADVERTISE_CLIENT_URLS="http://127.0.0.1:2379" \
+    ETCD_DATA_DIR="/home/app/etcd/data/" \
+    ETCD_LISTEN_CLIENT_URLS="http://0.0.0.0:2379" \
+    PATH="/home/app/etcd/bin:$PATH"
+
+EXPOSE 2379 2380
+WORKDIR /home/app
+ENTRYPOINT  ["/usr/share/entrypoint.sh"]
+CMD [ "etcd" ]

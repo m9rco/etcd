@@ -13,18 +13,8 @@ before_install:
   - chmod +x /usr/local/bin/docker-compose
 
   - docker version
-
   - docker build --no-cache -t m9rco/etcd:3.3.13 -f 3.3.13/Dockerfile 3.3.13/
+  - docker-compose -f 3.3.13/docker-compose.yml up -d
 
-  - docker run \
-            -d \
-            -p 2379:2379 \
-            -p 2380:2380 \
-            -p 4001:4001 \
-            -p 7001:7001 \
-            -v $(pwd):/home/app \
-            m9rco/etcd:3.3.13 \
-            -name some-etcd \
-            -discovery=https://discovery.etcd.io/blahblahblahblah \
-            -advertise-client-urls http://192.168.1.99:4001 \
-            -initial-advertise-peer-urls http://192.168.1.99:7001
+script:
+  - docker exec 3313_etcd_1 sh -c "etcd"

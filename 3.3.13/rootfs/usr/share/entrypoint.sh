@@ -1,66 +1,40 @@
 #!/bin/bash
 
-echo
-echo "Welcome $(whoami), from '/usr/share/entrypoint.sh'"
-echo
-# See: https://unix.stackexchange.com/q/26676
-[[ $- == *i* ]] \
-    && echo 'This is an interactive shell' \
-    || echo 'This is not an interactive shell'
+##
+## @brief     Helper function to show an error when ETCD_ROOT_PASSWORD does not enable the authentication
+## param $1   Input name
+##
+authentication_enabled_error() {
+    echo "The $1 environment variable does not enable authentication. Set the environment variable ALLOW_NONE_AUTHENTICATION=yes to allow the container to be started without authentication. This is recommended only for development."
+    exit 1
+}
 
-# See: https://unix.stackexchange.com/q/26676
-shopt -q login_shell \
-    && echo 'This is a login shell' \
-    || echo 'This is not a login shell'
+##
+## @brief     Helper function to show a warning when the ALLOW_NONE_AUTHENTICATION flag is enabled
+##
+authentication_enabled_warn() {
+    echo "You set the environment variable ALLOW_NONE_AUTHENTICATION=${ALLOW_NONE_AUTHENTICATION}. For safety reasons, do not use this flag in a production environment."
+}
 
-echo 
 
-# if the first parameter is a flag, set the executable to bash
-# otherwise, use the supplied command 
-cmd="$@" 
-if [[ "$1" =~ ^- ]]; then
-    cmd="bash"
+# Validate authentication
+if [[ "$ALLOW_NONE_AUTHENTICATION" =~ ^(yes|Yes|YES)$ ]]; then
+    authentication_enabled_warn
+elif [[ -z "$ETCD_ROOT_PASSWORD" ]]; then
+    authentication_enabled_error ETCD_ROOT_PASSWORD
 fi
 
-while [[ $# -gt 0 ]]; do
-    arg="$1"
-
-    case $arg in 
-       --some-var|-s)
-            # This just assumes the input is good. 
-            # In a real script, you will want to check that for yourself.
-            cat >> /usr/share/entrypoint/known_args - <<< "export SOME_VAR='$2'"
-            shift
-            shift
-            ;;
-        bash)
-            # This is the default command from the Dockerfile if no other 
-            # commands or flags are specified. We must handle it, or else 
-            # it will be considered an 'unknown_arg' and will print out a 
-            # harmless but worrisome diagnostic saying as much.
-            shift
-            ;;
-        *)  
-            # Storing each per line enables easier post-processing,
-            # as it obviates the need to handle spaces explicitly
-            cat >> /usr/share/entrypoint/unknown_args - <<< "$1"
-            shift
-            ;;
-    esac
-done 
-
-if [[ -f "/usr/share/entrypoint/unknown_args" ]]; then
-    echo "These unknown options were not processed"
-    cat /usr/share/entrypoint/unknown_args
-    echo
+# Validate authentication
+if [[ ! -z "$ETCD_ROOT_PASSWORD" ]]; then
+    echo "==> Enabling etcd authentication..."
+    etcd > /dev/null 2>&1 &
+    ETCD_PID=$!
+    sleep 3
+    echo "$ETCD_ROOT_PASSWORD" | etcdctl user add root
+    etcdctl auth enable
+    etcdctl -u root:"$ETCD_ROOT_PASSWORD" role revoke guest -path '/*' --readwrite
+    kill $ETCD_PID
 fi
 
-if [[ -f "/usr/share/entrypoint/known_args" ]]; then
-    echo "Setting known flags"
-    cat /usr/share/entrypoint/known_args
-    . /usr/share/entrypoint/known_args
-    echo
-fi
 
-# Run the supplied command w/supplied flags and values 
-cd $HOME && exec "$cmd"
+exec "$@"
