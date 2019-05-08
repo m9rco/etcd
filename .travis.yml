@@ -17,7 +17,7 @@ before_install:
   - docker build --no-cache -t m9rco/etcd:3.3.13 -f 3.3.13/Dockerfile 3.3.13/
   - docker-compose -f 3.3.13/docker-compose.yml up -d
 
-  - docker build --no-cache -t m9rco/etcd:2.0.10 -f 2.0.10 /Dockerfile 2.0.10/
+  - docker build --no-cache -t m9rco/etcd:2.0.10 -f 2.0.10/Dockerfile 2.0.10/
   - docker-compose -f 2.0.10/docker-compose.yml up -d
 
 
