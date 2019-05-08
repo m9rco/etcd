@@ -1,0 +1,21 @@
+version: '2'
+
+networks:
+  etcd-tier-2:
+    driver: bridge
+
+services:
+  etcd:
+    image: 'm9rco/etcd:2.0.10'
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+    ports:
+      - 2379:2379
+      - 2380:2380
+    networks:
+      - etcd-tier-2
+  app:
+    image: m9rco/alpine:3.8
+    networks:
+      - etcd-tier-2

@@ -1,0 +1,23 @@
+alias grep="grep -rnE --color"
+alias mkdir="mkdir -pv"
+alias cp='cp -v'
+alias cpr='cp -r'
+alias mv='mv -v'
+alias chmod='chmod -v --preserve-root'
+alias chown='chown -v --preserve-root'
+alias df="df -h"
+alias du="du -h"
+alias last="last -a"
+alias free='free -m'
+alias lftp="lftp user:pwd@ftpip"
+
+
+alias ll='ls -lh'
+alias ..='cd ..'
+alias ...='cd ../../'
+alias ....='cd ../../../'
+alias .....='cd ../../../../'
+alias ......='cd ../../../../../'
+
+alias freq='cut -f1 -d" " ~/.bash_history | sort | uniq -c | sort -nr | head -n 30'
+alias tm='ps -ef | grep'
