@@ -22,21 +22,6 @@
 
 ## Usage
 
-### Step 1
-
-```sh
-docker pull m9rco/etcd:3.3.13
-```
-
-### Step 2
-
-```sh
-# docker run -it -v $(pwd):/app/ --name etcd m9rco/etcd:3.3.13 sh
-docker run -it --name etcd m9rco/etcd:3.3.13
-
-```
-
-## Get this image
 The recommended way to get the m9rco etcd Docker Image is to pull the prebuilt image from the [Docker Hub Registry](https://hub.docker.com/r/m9rco/etcd).
 
 ```sh
@@ -82,6 +67,12 @@ docker run -it --rm \
     --network app-tier \
     --env ALLOW_NONE_AUTHENTICATION=yes \
     m9rco/etcd:latest etcdctl --endpoints http://etcd-server:2379 set /message Hello
+```
+
+## Exec
+
+```sh
+ docker exec 3313_etcd_1 sh -c 'ETCDCTL_API=3  etcdctl get "name" "m9rco"'
 ```
 
 ## Using Docker Compose
