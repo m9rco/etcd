@@ -1,7 +1,5 @@
 FROM m9rco/alpine:3.8
-
 LABEL maintainer="m9rco <pushaowei0727@gmail.com>"
-WORKDIR /home/app
 
 ARG ETCD_VSERSION=v3.3.13
 RUN apk add -U --no-cache ca-certificates \
@@ -16,7 +14,6 @@ RUN apk add -U --no-cache ca-certificates \
 
 ADD rootfs /
 
-
 ENV BITNAMI_APP_NAME="etcd" \
     BITNAMI_IMAGE_VERSION="${ETCD_VSERSION}-linux-amd64" \
     ETCD_ADVERTISE_CLIENT_URLS="http://127.0.0.1:2379" \
@@ -25,6 +22,7 @@ ENV BITNAMI_APP_NAME="etcd" \
     PATH="/home/app/etcd/bin:$PATH"
 
 EXPOSE 2379 2380
-WORKDIR /home/app
+
+WORKDIR /app
 ENTRYPOINT  ["/usr/share/entrypoint.sh"]
 CMD [ "etcd" ]
