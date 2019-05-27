@@ -1,4 +1,4 @@
-FROM m9rco/etcd:3.8
+FROM m9rco/etcd:3.3.13
 LABEL maintainer="m9rco <pushaowei0727@gmail.com>"
 
 ARG USER=root
